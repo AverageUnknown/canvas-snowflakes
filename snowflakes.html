@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="myCanvas" width="200" height="200"></canvas>
+    <script>
+      var canvas = document.getElementById('myCanvas');
+      var context = canvas.getContext('2d');
+      context.clearRect(0,0,canvas.width,canvas.height);
+      context.lineWidth = 2;
+      context.strokeStyle = '#0000FF';
+
+      function newSnowflake(){
+          return {
+              x: 100,
+              xv: 1,
+              y: 0,
+              yv: 1,
+              t: 250,
+
+              draw:function() {
+                  this.xv = Math.max(Math.min(Math.floor(Math.random()*3)-1 + this.xv,5),-5)
+                  this.x = Math.max(Math.min(this.x + this.xv,200),0)
+                  if (this.x == 0 || this.x == 200){
+                      this.xv = -this.xv;
+                  }
+                  this.yv = Math.max(Math.min(Math.floor(Math.random()*3)-1 + this.yv,5),1)
+                  this.y = this.y + this.yv
+                  if (this.y > 200){
+                      this.y = 0;
+                  }
+                  context.save()
+                  var time = new Date();
+                  context.translate(this.x,this.y)
+                  if (this.t < time.getMilliseconds()%500){
+                      context.rotate(Math.PI/2)
+                  }
+                  for (var i = 0; i < 6; i++){
+                      context.beginPath();
+                      context.moveTo(0,0);
+                      context.lineTo(12,0);
+                      context.moveTo(6,0);
+                      context.lineTo(10,3);
+                      context.moveTo(6,0);
+                      context.lineTo(10,-3)
+                      context.stroke();
+                      context.rotate(Math.PI / 3);
+                      context.closePath();
+                  }
+                  context.restore()
+              }
+          }
+      }
+
+      var snowflakes = {
+          0: newSnowflake(),
+          1: newSnowflake(),
+          2: newSnowflake(),
+          3: newSnowflake(),
+          4: newSnowflake()
+      }
+
+      function drawSnowflake(){
+          context.clearRect(0,0,canvas.width,canvas.height);
+          snowflakes[0].draw()
+          snowflakes[1].draw()
+          snowflakes[2].draw()
+          snowflakes[3].draw()
+          snowflakes[4].draw()
+          window.requestAnimationFrame(drawSnowflake)
+      }
+
+      drawSnowflake()
+    </script>
+  </body>
+</html>
