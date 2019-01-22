@@ -8,32 +8,33 @@
       }
     </style>
   </head>
-  <body>
+  <body onresize="resizeCanvas()">
     <canvas id="myCanvas" width="200" height="200"></canvas>
     <script>
       var canvas = document.getElementById('myCanvas');
       var context = canvas.getContext('2d');
+      resizeCanvas();
       context.clearRect(0,0,canvas.width,canvas.height);
-      context.lineWidth = 2;
+      context.lineWidth = 1;
       context.strokeStyle = '#0000FF';
 
       function newSnowflake(){
           return {
-              x: 100,
+              x: Math.random()*canvas.width,
               xv: 1,
-              y: 0,
+              y: Math.random()*canvas.height,
               yv: 1,
               t: 250,
 
               draw:function() {
-                  this.xv = Math.max(Math.min(Math.floor(Math.random()*3)-1 + this.xv,5),-5)
-                  this.x = Math.max(Math.min(this.x + this.xv,200),0)
-                  if (this.x == 0 || this.x == 200){
+                  this.xv = Math.max(Math.min(Math.random()-.5 + this.xv,1.5),-1.5)
+                  this.x = Math.max(Math.min(this.x + this.xv,canvas.width),0)
+                  if (this.x == 0 || this.x == canvas.width){
                       this.xv = -this.xv;
                   }
-                  this.yv = Math.max(Math.min(Math.floor(Math.random()*3)-1 + this.yv,5),1)
+                  this.yv = Math.max(Math.min(Math.floor(Math.random()/5)-.4 + this.yv,1.1),1)
                   this.y = this.y + this.yv
-                  if (this.y > 200){
+                  if (this.y > canvas.height){
                       this.y = 0;
                   }
                   context.save()
@@ -45,11 +46,11 @@
                   for (var i = 0; i < 6; i++){
                       context.beginPath();
                       context.moveTo(0,0);
-                      context.lineTo(12,0);
-                      context.moveTo(6,0);
-                      context.lineTo(10,3);
-                      context.moveTo(6,0);
-                      context.lineTo(10,-3)
+                      context.lineTo(6,0);
+                      context.moveTo(3,0);
+                      context.lineTo(5,1.5);
+                      context.moveTo(3,0);
+                      context.lineTo(5,-1.5)
                       context.stroke();
                       context.rotate(Math.PI / 3);
                       context.closePath();
@@ -59,25 +60,26 @@
           }
       }
 
-      var snowflakes = {
-          0: newSnowflake(),
-          1: newSnowflake(),
-          2: newSnowflake(),
-          3: newSnowflake(),
-          4: newSnowflake()
+      var snowflakes = []
+      for (var i = 0; i < 100; i++){
+          snowflakes.push(newSnowflake())
       }
 
-      function drawSnowflake(){
+      function drawSnowflakes(){
           context.clearRect(0,0,canvas.width,canvas.height);
-          snowflakes[0].draw()
-          snowflakes[1].draw()
-          snowflakes[2].draw()
-          snowflakes[3].draw()
-          snowflakes[4].draw()
-          window.requestAnimationFrame(drawSnowflake)
+          snowflakes.forEach(function(element){
+              element.draw();
+          });
+          window.requestAnimationFrame(drawSnowflakes)
       }
 
-      drawSnowflake()
+      drawSnowflakes()
+
+      function resizeCanvas(){
+          canvas.width = window.outerWidth;
+          canvas.height = window.outerHeight;
+          context.strokeStyle = '#0000FF';
+      }
     </script>
   </body>
 </html>
