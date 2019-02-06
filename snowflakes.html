@@ -1,85 +1,115 @@
 <!DOCTYPE HTML>
 <html>
-  <head>
-    <style>
-      body {
-        margin: 0px;
-        padding: 0px;
-      }
-    </style>
-  </head>
-  <body onresize="resizeCanvas()">
-    <canvas id="myCanvas" width="200" height="200"></canvas>
-    <script>
-      var canvas = document.getElementById('myCanvas');
-      var context = canvas.getContext('2d');
-      resizeCanvas();
-      context.clearRect(0,0,canvas.width,canvas.height);
-      context.lineWidth = 1;
-      context.strokeStyle = '#0000FF';
+    <head>
+        <style>
+            body {
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body onresize="resizeCanvas()">
+        <div id="container" width="100%" height="100%">
+            <canvas id="myCanvas" width="100%" height="100%"></canvas>
+            <script>
 
-      function newSnowflake(){
-          return {
-              x: Math.random()*canvas.width,
-              xv: 1,
-              y: Math.random()*canvas.height,
-              yv: 1,
-              t: 250,
+            class Snowflake {
+                constructor(x,y){
+                    this.x = x;
+                    this.y = y;
+                    this.xv = 0;
+                    this.yv = 0;
+                    this.t = 500;
+                    this.r = 0;
+                    this.rv = 0;
+                    this.scale = Math.random() + .5;
+                }
 
-              draw:function() {
-                  this.xv = Math.max(Math.min(Math.random()-.5 + this.xv,1.5),-1.5)
-                  this.x = Math.max(Math.min(this.x + this.xv,canvas.width),0)
-                  if (this.x == 0 || this.x == canvas.width){
-                      this.xv = -this.xv;
-                  }
-                  this.yv = Math.max(Math.min(Math.floor(Math.random()/5)-.4 + this.yv,1.1),1)
-                  this.y = this.y + this.yv
-                  if (this.y > canvas.height){
-                      this.y = 0;
-                  }
-                  context.save()
-                  var time = new Date();
-                  context.translate(this.x,this.y)
-                  if (this.t < time.getMilliseconds()%500){
-                      context.rotate(Math.PI/2)
-                  }
-                  for (var i = 0; i < 6; i++){
-                      context.beginPath();
-                      context.moveTo(0,0);
-                      context.lineTo(6,0);
-                      context.moveTo(3,0);
-                      context.lineTo(5,1.5);
-                      context.moveTo(3,0);
-                      context.lineTo(5,-1.5)
-                      context.stroke();
-                      context.rotate(Math.PI / 3);
-                      context.closePath();
-                  }
-                  context.restore()
-              }
-          }
-      }
+                static getRandomType(){
+                    return Math.floor(Math.random()*6);
+                }
 
-      var snowflakes = []
-      for (var i = 0; i < 100; i++){
-          snowflakes.push(newSnowflake())
-      }
+                draw(){
+                    throw new Error("Not implemented");
+                }
+            }
 
-      function drawSnowflakes(){
-          context.clearRect(0,0,canvas.width,canvas.height);
-          snowflakes.forEach(function(element){
-              element.draw();
-          });
-          window.requestAnimationFrame(drawSnowflakes)
-      }
+            class StellarDentrite extends Snowflake {
+                constructor(x,y){
+                    super(x,y);
+                }
 
-      drawSnowflakes()
+                draw(){
+                    this.xv = Math.max(Math.min(Math.random()/2-.25 + this.xv,1),-1)
+                    this.x = Math.max(Math.min(this.x + this.xv,canvas.width),0)
+                    if (this.x == 0 || this.x == canvas.width){
+                        this.xv = -this.xv;
+                    }
+                    this.yv = Math.max(Math.min(Math.random()/5-.1 + this.yv,1),.5)
+                    this.y = this.y + this.yv
+                    if (this.y > canvas.height){
+                        this.y = 0;
+                    }
+                    context.save()
+                    var time = new Date();
+                    context.translate(this.x,this.y);
+                    this.rv = Math.max(Math.min((Math.random()*.0025-.00125)*Math.PI+this.rv,.025*Math.PI),-.025*Math.PI);
+                    this.r = this.r + this.rv;
+                    context.rotate(this.r);
+                    //if (this.t < time.getMilliseconds()%1000){
+                    //    context.rotate(Math.PI/2)
+                    //}
+                    for (var i = 0; i < 6; i++){
+                        context.beginPath();
+                        context.moveTo(0,0);
+                        context.lineTo(6*this.scale,0);
+                        context.moveTo(1*this.scale,0);
+                        context.lineTo(3*this.scale,1.25*this.scale);
+                        context.moveTo(1*this.scale,0);
+                        context.lineTo(3*this.scale,-1.25*this.scale);
+                        context.moveTo(3*this.scale,0);
+                        context.lineTo(5*this.scale,1.5*this.scale);
+                        context.moveTo(3*this.scale,0);
+                        context.lineTo(5*this.scale,-1.5*this.scale)
+                        context.stroke();
+                        context.rotate(Math.PI / 3);
+                        context.closePath();
+                    }
+                    context.restore()
+                }
+            }
 
-      function resizeCanvas(){
-          canvas.width = window.outerWidth;
-          canvas.height = window.outerHeight;
-          context.strokeStyle = '#0000FF';
-      }
-    </script>
-  </body>
+
+            var canvas = document.getElementById('myCanvas');
+            var context = canvas.getContext('2d');
+            resizeCanvas();
+            context.clearRect(0,0,canvas.width,canvas.height);
+            context.lineWidth = 1;
+            context.strokeStyle = '#BCBCFF';
+
+
+            var snowflakes = []
+            for (var i = 0; i < 100; i++){
+                snowflakes.push(new StellarDentrite(Math.random()*canvas.width,Math.random()*canvas.height))
+            }
+
+            function drawSnowflakes(){
+                context.clearRect(0,0,canvas.width,canvas.height);
+                snowflakes.forEach(function(element){
+                    element.draw();
+                });
+                window.requestAnimationFrame(drawSnowflakes)
+            }
+
+            drawSnowflakes()
+
+            function resizeCanvas(){
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                context.strokeStyle = '#BCBCFF';
+            }
+            </script>
+        </div>
+    </body>
 </html>
