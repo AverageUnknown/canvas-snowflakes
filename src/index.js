@@ -5,11 +5,12 @@ import SectoredPlates from "./classes/sectored-plates.js";
 
 const canvas = document.getElementById('myCanvas');
 const context = canvas.getContext('2d');
-resizeCanvas();
 context.clearRect(0,0,canvas.width,canvas.height);
 context.lineWidth = 1;
-context.strokeStyle = '#BCBCFF';
 
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+context.strokeStyle = '#BCBCFF';
 
 const snowflakes = []
 
@@ -39,8 +40,8 @@ function drawSnowflakes(){
 
 drawSnowflakes()
 
-function resizeCanvas(){
+document.body.addEventListener("resize",()=>{
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     context.strokeStyle = '#BCBCFF';
-}
+});
