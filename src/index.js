@@ -3,45 +3,65 @@ import TwelveBranchStar from "./classes/twelve-branch-star.js";
 import StellarDentrite from "./classes/stellar-dendrite.js";
 import SectoredPlates from "./classes/sectored-plates.js";
 
-const canvas = document.getElementById('myCanvas');
-const context = canvas.getContext('2d');
-context.clearRect(0,0,canvas.width,canvas.height);
-context.lineWidth = 1;
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-context.strokeStyle = '#BCBCFF';
+class CanvasSnowflakes extends HTMLElement {
+    static get observedAttributes() { return ['width','height','count']; }
 
-const snowflakes = []
+    attributeChangedCallback(name, oldValue, newValue) {
+        console.log(name,oldValue,newValue);
+        this[name] = newValue;
+    }
 
-for (let i = 0; i < 25; i++){
-    snowflakes.push(new StellarDentrite(Math.random()*canvas.width,Math.random()*canvas.height,canvas))
+    constructor() {
+        super();
+        const shadowRoot = this.attachShadow({ mode: "open" });
+    }
+
+    connectedCallback() {
+        const container = document.createElement('div');
+        container.width = this.width;
+        container.height = this.height;
+
+        this.canvas = document.createElement('canvas');
+        this.canvas.id = "myCanvas";
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        container.appendChild(this.canvas);
+
+        this.context = this.canvas.getContext('2d');
+        this.context.clearRect(0,0,this.canvas.width,this.canvas.height);
+        this.context.lineWidth = 1;
+        this.context.strokeStyle = '#BCBCFF';
+
+        this.shadowRoot.appendChild(container);
+
+        this.drawSnowflakes = this.drawSnowflakes.bind(this);
+
+        this.snowflakes = [];
+        for (let i = 0; i < this.count; i++){
+            let r = Math.random();
+            if (r < .25)
+                this.snowflakes.push(new StellarDentrite(Math.random()*this.canvas.width,Math.random()*this.canvas.height,this.canvas));
+            else if (r < .5)
+                this.snowflakes.push(new SimpleStar(Math.random()*this.canvas.width,Math.random()*this.canvas.height,this.canvas));
+            else if (r < .75)
+                this.snowflakes.push(new TwelveBranchStar(Math.random()*this.canvas.width,Math.random()*this.canvas.height,this.canvas));
+            else
+                this.snowflakes.push(new SectoredPlates(Math.random()*this.canvas.width,Math.random()*this.canvas.height,this.canvas));
+        }
+
+        console.log(this);
+
+        this.drawSnowflakes();
+    }
+
+    drawSnowflakes(){
+        this.context.clearRect(0,0,this.canvas.width,this.canvas.height);
+        this.snowflakes.forEach((element) => {
+            element.draw();
+        });
+        window.requestAnimationFrame(this.drawSnowflakes)
+    }
 }
 
-for (let i = 0; i < 25; i++){
-    snowflakes.push(new SimpleStar(Math.random()*canvas.width,Math.random()*canvas.height,canvas))
-}
-
-for (let i = 0; i < 25; i++){
-    snowflakes.push(new TwelveBranchStar(Math.random()*canvas.width,Math.random()*canvas.height,canvas))
-}
-
-for (let i = 0; i < 25; i++){
-    snowflakes.push(new SectoredPlates(Math.random()*canvas.width,Math.random()*canvas.height,canvas))
-}
-
-function drawSnowflakes(){
-    context.clearRect(0,0,canvas.width,canvas.height);
-    snowflakes.forEach(function(element){
-        element.draw();
-    });
-    window.requestAnimationFrame(drawSnowflakes)
-}
-
-drawSnowflakes()
-
-document.body.addEventListener("resize",()=>{
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    context.strokeStyle = '#BCBCFF';
-});
+customElements.define('canvas-snowflakes', CanvasSnowflakes);
