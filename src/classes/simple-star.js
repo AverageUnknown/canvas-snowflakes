@@ -9,7 +9,7 @@ export default class SimpleStar extends Snowflake {
             for (let i = 0; i < 6; i++){
                 this.context.beginPath();
                 this.context.moveTo(0,0);
-                this.context.lineTo(6*this.scale,0);
+                this.context.lineTo(6,0);
                 this.context.stroke();
                 this.context.rotate(Math.PI / 3);
                 this.context.closePath();
