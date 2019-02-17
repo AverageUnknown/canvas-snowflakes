@@ -19,7 +19,7 @@ export default class Snowflake {
     draw(trace){
         this.calcPos();
         this.context.save()
-        context.scale(this.scale);
+        this.context.scale(this.scale,this.scale);
         this.context.translate(this.x,this.y);
         this.context.rotate(this.r);
 
